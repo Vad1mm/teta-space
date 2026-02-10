@@ -23,7 +23,7 @@ export class SettingsScreen {
 
   mount(container) {
     const mode = state.get('settings.mode') || 'standard';
-    const duration = state.get('settings.sessionDurationMs') || 180000;
+    const duration = state.get('settings.sessionDurationMs') || 60000;
     const digits = state.get('settings.startingDigitLength') || 4;
     const soundEnabled = state.get('settings.soundEnabled') !== false;
     const locale = getLocale();

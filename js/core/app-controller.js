@@ -62,6 +62,12 @@ export class AppController {
 
     this._appEl.appendChild(this._tabBar);
 
+    // Invite animation on play button if user hasn't played yet
+    this._playBtn = this._tabBar.querySelector('[data-tab="training"]');
+    if ((state.get('user.totalSessions') || 0) === 0) {
+      this._playBtn.classList.add('tab-bar-start-invite');
+    }
+
     this._tabBar.querySelectorAll('.tab-bar-item').forEach(btn => {
       btn.addEventListener('click', () => this.navigate(btn.dataset.tab));
     });
@@ -76,6 +82,10 @@ export class AppController {
   }
 
   navigate(screen, params) {
+    // Remove play invite animation on first training start
+    if (screen === 'training' && this._playBtn) {
+      this._playBtn.classList.remove('tab-bar-start-invite');
+    }
     this._router.navigate(screen, params);
     this._updateTabBar(screen);
   }

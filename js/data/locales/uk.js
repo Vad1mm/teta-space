@@ -5,6 +5,7 @@ export const uk = {
   // Training
   'training.prompt': 'Запам\'ятай число',
   'training.input_placeholder': 'Введи число',
+  'training.session': 'Сесія',
   'training.round': 'Раунд',
   'training.speed': 'Швидкість',
   'training.digits': 'Цифри',

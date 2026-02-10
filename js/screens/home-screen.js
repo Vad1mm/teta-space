@@ -1,7 +1,8 @@
 /** Home screen — main hub */
-import { t } from '../core/i18n.js';
+import { t, getLocale } from '../core/i18n.js';
 import { state } from '../core/state.js';
 import { ThetaLogo } from '../components/theta-logo.js';
+import { getRandomFact } from '../data/brain-facts.js';
 
 export class HomeScreen {
   constructor(app) {
@@ -12,6 +13,7 @@ export class HomeScreen {
 
   mount(container) {
     const bsi = state.get('user.bsi') || 0;
+    const bsiDisplay = bsi > 0 ? bsi : '?';
     const streak = state.get('user.streak') || 0;
     const sessions = state.get('history.sessions') || [];
     const lastSession = sessions[sessions.length - 1];
@@ -28,7 +30,7 @@ export class HomeScreen {
 
     const deltaText = yesterdayBSI != null ? `${bsi - yesterdayBSI >= 0 ? '+' : ''}${bsi - yesterdayBSI}` : '';
 
-    this._logo = new ThetaLogo(80, 'calm', 'static');
+    this._logo = new ThetaLogo(100, 'calm', 'alive');
 
     this._el = document.createElement('div');
     this._el.className = 'screen home-screen';
@@ -46,31 +48,33 @@ export class HomeScreen {
         </button>
       </div>
 
-      <div class="home-bsi animate-fade-in-up">
-        <div class="home-bsi-logo"></div>
-        <div class="home-bsi-value">${bsi}</div>
-        <div class="home-bsi-label">${t('home.bsi_label')}</div>
-        ${deltaText ? `<div class="home-bsi-delta">${deltaText}</div>` : ''}
+      <div class="home-content">
+        <div class="home-bsi animate-fade-in-up">
+          <div class="home-bsi-logo"></div>
+          <div class="home-bsi-value">${bsiDisplay}</div>
+          <div class="home-bsi-label">${t('home.bsi_label')}</div>
+          ${deltaText ? `<div class="home-bsi-delta">${deltaText}</div>` : ''}
+        </div>
+
+        ${chartData.length > 1 ? `<div class="mini-chart-container">${this._renderMiniChart(chartData)}</div>` : ''}
+
+        <div class="home-stats">
+          <div class="stat-card">
+            <div class="stat-card-value">${lastSession && isFinite(lastSession.maxDigits) ? lastSession.maxDigits : '-'}</div>
+            <div class="stat-card-label">${t('home.digits')}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value">${lastSession && isFinite(lastSession.bestSpeed) ? lastSession.bestSpeed + t('general.ms') : '-'}</div>
+            <div class="stat-card-label">${t('home.speed')}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value">${lastSession ? lastSession.accuracy + '%' : '-'}</div>
+            <div class="stat-card-label">${t('home.accuracy')}</div>
+          </div>
+        </div>
+
+        <div class="home-brain-fact">${getRandomFact(getLocale())}</div>
       </div>
-
-      ${chartData.length > 1 ? `<div class="mini-chart-container">${this._renderMiniChart(chartData)}</div>` : ''}
-
-      <div class="home-stats">
-        <div class="stat-card">
-          <div class="stat-card-value">${lastSession && isFinite(lastSession.maxDigits) ? lastSession.maxDigits : '-'}</div>
-          <div class="stat-card-label">${t('home.digits')}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value">${lastSession && isFinite(lastSession.bestSpeed) ? lastSession.bestSpeed + t('general.ms') : '-'}</div>
-          <div class="stat-card-label">${t('home.speed')}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value">${lastSession ? lastSession.accuracy + '%' : '-'}</div>
-          <div class="stat-card-label">${t('home.accuracy')}</div>
-        </div>
-      </div>
-
-      <div class="home-mantra">Think less. See more.</div>
     `;
 
     container.appendChild(this._el);
@@ -103,15 +107,14 @@ export class HomeScreen {
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
 
-        <div class="streak-popup-flame">
-          <svg viewBox="0 0 48 48" width="48" height="48" fill="none">
+        <div class="streak-popup-hero">
+          <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
             <path d="M24 4s-10 10-10 20a10 10 0 0020 0C34 14 24 4 24 4z" fill="var(--theta-400)" opacity="0.15"/>
             <path d="M24 4s-10 10-10 20a10 10 0 0020 0C34 14 24 4 24 4z" stroke="var(--theta-400)" stroke-width="1.5" fill="none"/>
             <path d="M24 32a4 4 0 004-4c0-3-4-6-4-6s-4 3-4 6a4 4 0 004 4z" fill="var(--theta-500)" opacity="0.5"/>
           </svg>
+          <div class="streak-popup-days">${streak || 1}</div>
         </div>
-
-        <div class="streak-popup-days">${streak || 1}</div>
         <div class="streak-popup-days-label">${t('streak.title').replace('{value}', streak || 1)}</div>
         <div class="streak-popup-subtitle">${t('streak.subtitle')}</div>
 

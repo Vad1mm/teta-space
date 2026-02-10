@@ -407,8 +407,10 @@
   opacity: 0.5;
 }
 
-.streak-popup-flame {
-  margin-bottom: var(--space-xs);
+.streak-popup-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 .streak-popup-days {
@@ -633,6 +635,23 @@
 
 .tab-bar-start.active {
   color: var(--theta-400);
+}
+
+/* Invite pulse on play button — until first session */
+.tab-bar-start-invite svg {
+  animation: playGlow 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px var(--theta-400));
+}
+
+@keyframes playGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px var(--theta-400));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 14px var(--theta-400)) drop-shadow(0 0 24px rgba(99, 102, 241, 0.3));
+    transform: scale(1.12);
+  }
 }
 
 /* ── PRO Modal ── */

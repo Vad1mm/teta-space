@@ -1,6 +1,6 @@
 /** TETA Service Worker — offline caching */
 
-const CACHE_NAME = 'teta-v4';
+const CACHE_NAME = 'teta-v5';
 const ASSETS = [
   '/',
   '/index.html',
@@ -36,6 +36,7 @@ const ASSETS = [
   '/js/utils/math.js',
   '/js/data/locales/uk.js',
   '/js/data/locales/en.js',
+  '/js/data/brain-facts.js',
   '/icons/icon-192.svg',
   '/icons/icon-512.svg',
   '/manifest.json',

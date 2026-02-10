@@ -5,6 +5,7 @@ export const en = {
   // Training
   'training.prompt': 'Remember the number',
   'training.input_placeholder': 'Enter number',
+  'training.session': 'Session',
   'training.round': 'Round',
   'training.speed': 'Speed',
   'training.digits': 'Digits',

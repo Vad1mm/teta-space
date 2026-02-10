@@ -18,7 +18,7 @@ export class Trainer {
     this.mode = getMode(config.mode || 'standard');
     this.digitLength = config.digitLength || 4;
     this.displaySpeedMs = config.displaySpeedMs || 800;
-    this.sessionDurationMs = config.sessionDurationMs || 3 * 60 * 1000;
+    this.sessionDurationMs = config.sessionDurationMs || 1 * 60 * 1000;
     this.onStateChange = config.onStateChange || (() => {});
 
     // Session tracking

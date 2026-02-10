@@ -16,7 +16,7 @@ const DEFAULT_STATE = {
   },
   settings: {
     mode: 'standard',
-    sessionDurationMs: 3 * 60 * 1000,  // 3 minutes
+    sessionDurationMs: 1 * 60 * 1000,  // 1 minute
     soundEnabled: true,
     locale: null,  // auto-detect
     startingDigitLength: 4,

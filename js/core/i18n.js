@@ -10,12 +10,7 @@ export function initLocale(savedLocale) {
   if (savedLocale && locales[savedLocale]) {
     currentLocale = savedLocale;
   } else {
-    const browserLang = navigator.language?.slice(0, 2);
-    if (browserLang === 'uk' || browserLang === 'ru') {
-      currentLocale = 'uk';
-    } else {
-      currentLocale = 'en';
-    }
+    currentLocale = 'uk';
   }
 }
 

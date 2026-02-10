@@ -2,6 +2,7 @@
 import { t, getLocale } from '../core/i18n.js';
 import { saveSessionToHistory } from '../engine/session.js';
 import { updateBSI } from '../engine/bsi-calculator.js';
+import { getRandomFact } from '../data/brain-facts.js';
 
 export class CompleteScreen {
   constructor(app) {
@@ -30,8 +31,8 @@ export class CompleteScreen {
         <div class="stat-card-label" style="margin-top: 8px;">${t('complete.new_bsi')}</div>
       </div>
 
-      <div class="complete-insight animate-fade-in">
-        ${this._getInsight(stats)}
+      <div class="complete-brain-fact animate-fade-in">
+        ${getRandomFact(getLocale())}
       </div>
 
       <div class="complete-stats animate-fade-in-up">
@@ -71,28 +72,6 @@ export class CompleteScreen {
     });
 
     return this._el;
-  }
-
-  _getInsight(stats) {
-    const isUk = getLocale() === 'uk';
-    if (stats.accuracy >= 90) {
-      return isUk
-        ? 'Вражаюча точність. Твій мозок тримає фокус.'
-        : 'Impressive accuracy. Your brain is locked in.';
-    }
-    if (stats.maxDigits >= 7) {
-      return isUk
-        ? 'Ти бачиш більше, ніж думаєш.'
-        : 'You see more than you think.';
-    }
-    if (stats.totalRounds >= 20) {
-      return isUk
-        ? 'Стабільний темп. Потік тримається.'
-        : 'Steady pace. The flow holds.';
-    }
-    return isUk
-      ? 'Кожна сесія — крок до автоматичного бачення.'
-      : 'Every session is a step toward automatic perception.';
   }
 
   unmount() {}

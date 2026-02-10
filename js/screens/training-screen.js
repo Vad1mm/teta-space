@@ -19,7 +19,6 @@ export class TrainingScreen {
     this._timerEl = null;
     this._progressEl = null;
     this._feedbackEl = null;
-    this._roundInfoEl = null;
     this._promptEl = null;
     this._countdownEl = null;
     this._inputDisplayEl = null;
@@ -45,7 +44,7 @@ export class TrainingScreen {
         </div>
         <div class="training-meta">
           <div class="timer" data-ref="timer">--:--</div>
-          <div class="training-meta-item" data-ref="round-info">${t('training.round')} 1</div>
+          <div class="training-meta-item">${t('training.session')} ${(state.get('user.totalSessions') || 0) + 1}</div>
         </div>
       </div>
 
@@ -66,10 +65,6 @@ export class TrainingScreen {
       <div class="training-bottom">
         <div class="input-display" data-ref="input-display"></div>
         <div class="numpad-container" data-ref="numpad-container"></div>
-        <div class="training-round-info">
-          <div>${t('training.digits')}: <span data-ref="digits-info">4</span></div>
-          <div>${t('training.speed')}: <span data-ref="speed-info">800${t('general.ms')}</span></div>
-        </div>
       </div>
     `;
 
@@ -80,7 +75,6 @@ export class TrainingScreen {
     this._timerEl = this._el.querySelector('[data-ref="timer"]');
     this._progressEl = this._el.querySelector('[data-ref="progress"]');
     this._feedbackEl = this._el.querySelector('[data-ref="feedback"]');
-    this._roundInfoEl = this._el.querySelector('[data-ref="round-info"]');
     this._promptEl = this._el.querySelector('[data-ref="prompt"]');
     this._countdownEl = this._el.querySelector('[data-ref="countdown"]');
     this._inputDisplayEl = this._el.querySelector('[data-ref="input-display"]');
@@ -90,8 +84,6 @@ export class TrainingScreen {
     this._feedbackDigitsEl = this._el.querySelector('[data-ref="feedback-digits"]');
     this._feedbackCorrectEl = this._el.querySelector('[data-ref="feedback-correct"]');
     this._feedbackSpeedEl = this._el.querySelector('[data-ref="feedback-speed"]');
-    this._digitsInfoEl = this._el.querySelector('[data-ref="digits-info"]');
-    this._speedInfoEl = this._el.querySelector('[data-ref="speed-info"]');
 
     // Create numpad
     this._numpad = new Numpad(
@@ -124,7 +116,7 @@ export class TrainingScreen {
       mode: state.get('settings.mode') || 'standard',
       digitLength: state.get('settings.startingDigitLength') || 4,
       displaySpeedMs: state.get('settings.startingSpeedMs') || 800,
-      sessionDurationMs: state.get('settings.sessionDurationMs') || 3 * 60 * 1000,
+      sessionDurationMs: state.get('settings.sessionDurationMs') || 1 * 60 * 1000,
       onStateChange: (trainerState, status) => this._onTrainerStateChange(trainerState, status),
     };
 
@@ -145,11 +137,6 @@ export class TrainingScreen {
       const percent = Math.min(100, (elapsed / status.sessionDurationMs) * 100);
       this._progressEl.style.width = `${percent}%`;
     }
-
-    // Update meta info
-    this._roundInfoEl.textContent = `${t('training.round')} ${status.roundNumber}`;
-    this._digitsInfoEl.textContent = status.digitLength;
-    this._speedInfoEl.textContent = `${status.displaySpeedMs}${t('general.ms')}`;
 
     // Only handle state transitions, not repeated timer updates
     if (trainerState === this._lastHandledState && trainerState !== TrainerState.COMPLETE && trainerState !== TrainerState.COUNTDOWN) {
