@@ -153,7 +153,7 @@
 
 	let eyeRef: Eye;
 
-	const PROGRESS_DUR = 10000;
+	const PROGRESS_DUR = 60000;
 
 	// ═══ ENGINES ═══
 	const B = createClosedEyeState();
