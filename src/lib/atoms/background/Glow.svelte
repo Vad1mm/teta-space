@@ -3,15 +3,16 @@
 
 	let { breath = 0, beatVal = 0, boost = 1 }: { breath?: number; beatVal?: number; boost?: number } = $props();
 
+	let b = $derived(Math.min(boost, 0.75));
 	let g = $derived(glowValues(breath, beatVal));
 </script>
 
 <div class="glow glow1"
-	style:opacity={g.g1op * boost}
+	style:opacity={g.g1op * b}
 	style:transform="translate(-50%,-50%) scale({g.g1scale})">
 </div>
 <div class="glow glow2"
-	style:opacity={g.g2op * boost}
+	style:opacity={g.g2op * b}
 	style:transform="translate(-50%,-50%) scale({g.g2scale})">
 </div>
 

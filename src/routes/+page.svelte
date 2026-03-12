@@ -545,7 +545,7 @@
 				if (glowBoost > 0.25) glowBoost = Math.max(0.25, glowBoost - dt * 0.0005);
 			} else {
 				// Quiet: defocused attention glow — ramp to target
-				const qTarget = 0.55;
+				const qTarget = 0.45;
 				if (glowBoost < qTarget) glowBoost = Math.min(qTarget, glowBoost + dt * 0.001);
 				else if (glowBoost > qTarget) glowBoost = Math.max(qTarget, glowBoost - dt * 0.001);
 			}
@@ -561,7 +561,7 @@
 			blinkEng.update(dt);
 			// Universal: glow dims as eye closes
 			const closeness = clamp(B.iRy / IRIS_RY, 0, 1);
-			glowBoost = 0.25 + closeness * 0.75;
+			glowBoost = 0.25 + closeness * 0.20;
 			glowDim = 0.6 + closeness * 0.4;
 			attention.update(dt);
 			if (currentModule === 0) wander.update(dt);
@@ -580,7 +580,7 @@
 
 			// ═══ UNIVERSAL: glow follows eye openness ═══
 			const openness = clamp(B.iRy / IRIS_RY, 0, 1);
-			glowBoost = 0.25 + openness * 0.75;
+			glowBoost = 0.25 + openness * 0.20;
 			glowDim = 0.6 + openness * 0.4;
 
 			// Module-specific content
@@ -619,7 +619,7 @@
 				attentionHapticUpdate(dt);
 				if (heartFadeIn < 1) { heartFadeIn = Math.min(1, heartFadeIn + dt * 0.0012); heartOpacity = heartFadeIn; }
 				// Live: full brightness — blinks don't affect background
-				glowBoost = 1;
+				glowBoost = 0.45;
 				glowDim = 1;
 				if (ghostBlobOp > 0) ghostBlobOp = Math.max(0, ghostBlobOp - dt * 0.0004);
 			}
@@ -627,7 +627,7 @@
 				sensorEng.update(dt);
 				bpmCtrl.update(sensorEng.effectiveActivity());
 				heartEng.state.externalHR = bpmCtrl.state.currentBPM;
-				glowBoost = 0.7 + bpmCtrl.intensity() * 1.3;
+				glowBoost = Math.min(0.45, 0.3 + bpmCtrl.intensity() * 0.5);
 				glowDim = 0.75 + br * 0.25 + heartEng.state.beatVal * 0.15;
 				if (heartFadeIn < 1) { heartFadeIn = Math.min(1, heartFadeIn + dt * 0.0012); heartOpacity = heartFadeIn; }
 				if (heartDelay < 700) heartDelay += dt;
@@ -639,7 +639,7 @@
 				waveTime += 0.013;
 				// Breath-reactive glow for wave modules
 				if (currentModule === 2) {
-					glowBoost = 0.65 + br * 0.4;
+					glowBoost = 0.30 + br * 0.15;
 					glowDim = 0.7 + br * 0.3;
 				}
 			}
@@ -709,7 +709,7 @@
 				// Sensors stopped after Module 1 — Module 4 runs on fixed 35 BPM
 				bpmCtrl.update(0);
 				heartEng.state.externalHR = bpmCtrl.state.currentBPM;
-				glowBoost = 0.7 + bpmCtrl.intensity() * 1.3;
+				glowBoost = Math.min(0.45, 0.3 + bpmCtrl.intensity() * 0.5);
 				if (heartFadeIn < 1) { heartFadeIn = Math.min(1, heartFadeIn + dt * 0.0012); heartOpacity = heartFadeIn; }
 				heartEng.update(dt, br, now);
 				beatVal = heartEng.state.beatVal;
@@ -726,7 +726,7 @@
 			// Module 3: sync all visuals with current blink state
 			if (currentModule === 3) {
 				const openness = clamp((B.iRy - 0.2) / (IRIS_RY - 0.2), 0, 1);
-				glowBoost = openness;
+				glowBoost = openness * 0.45;
 				glowDim = 0.3 + openness * 0.7;
 				// Sync breath edges + focus dot with fresh openness (they used stale value above)
 				breathEdgeTopOpacity *= openness;
@@ -753,7 +753,7 @@
 				// Everything derives from one progress — no steps, no timeouts
 				heartOpacity = heartFadeIn * sstep(farewellT, 0, 0.45);
 				contourOpacity = sstep(farewellT, 0, 0.40);
-				glowBoost = sstep(farewellT, 0.05, 0.55);
+				glowBoost = sstep(farewellT, 0.05, 0.55) * 0.45;
 				glowDim = sstep(farewellT, 0.05, 0.50);
 				const ef = sstep(farewellT, 0, 0.35);
 				const edgeBase = 0.15 + br * 0.55;
