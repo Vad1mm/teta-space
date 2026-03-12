@@ -545,7 +545,7 @@
 				if (glowBoost > 0.25) glowBoost = Math.max(0.25, glowBoost - dt * 0.0005);
 			} else {
 				// Quiet: defocused attention glow — ramp to target
-				const qTarget = 0.7;
+				const qTarget = 0.55;
 				if (glowBoost < qTarget) glowBoost = Math.min(qTarget, glowBoost + dt * 0.001);
 				else if (glowBoost > qTarget) glowBoost = Math.max(qTarget, glowBoost - dt * 0.001);
 			}
@@ -723,11 +723,15 @@
 			blinkEng.blink.breathPhase = bp as 'in' | 'out';
 			blinkEng.update(dt);
 
-			// Module 3: glow blinks with eye (sharp off, gradual on)
+			// Module 3: sync all visuals with current blink state
 			if (currentModule === 3) {
 				const openness = clamp((B.iRy - 0.2) / (IRIS_RY - 0.2), 0, 1);
 				glowBoost = openness;
 				glowDim = 0.3 + openness * 0.7;
+				// Sync breath edges + focus dot with fresh openness (they used stale value above)
+				breathEdgeTopOpacity *= openness;
+				breathEdgeBotOpacity *= openness;
+				focusDotOp *= openness;
 			}
 
 			if (progressStart && !progressDone) {
@@ -1014,8 +1018,7 @@
 		</Eye>
 		{#if focusDotVisible}
 			<div class="focus-dot"
-				style:left="{focusDotX}px"
-				style:top="{focusDotY}px"
+				style:transform="translate(calc({focusDotX}px - 50%), calc({focusDotY}px - 50%))"
 				style:opacity={focusDotOp}>
 			</div>
 		{/if}
@@ -1139,14 +1142,12 @@
 	}
 	.focus-dot {
 		position: absolute;
-		width: 20px; height: 20px;
+		width: 32px; height: 32px;
 		border-radius: 50%;
-		background: radial-gradient(circle, rgba(99,102,241,0.45) 0%, rgba(99,102,241,0.12) 40%, transparent 70%);
-		transform: translate(-50%, -50%);
+		background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, rgba(99,102,241,0.10) 30%, rgba(99,102,241,0.03) 55%, transparent 75%);
 		pointer-events: none;
-		filter: blur(5px);
 		z-index: 2;
-		will-change: left, top, opacity;
+		will-change: transform, opacity;
 	}
 	.bottom-group {
 		display: flex; flex-direction: column; align-items: center;

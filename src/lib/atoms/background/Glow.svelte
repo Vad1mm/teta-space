@@ -26,11 +26,11 @@
 	.glow1 {
 		width: 1800px; height: 1200px;
 		top: 50%; left: 50%;
-		background: radial-gradient(ellipse, rgba(99,102,241,0.60) 0%, rgba(120,130,255,0.28) 20%, rgba(110,120,255,0.09) 50%, transparent 85%);
+		background: radial-gradient(ellipse, rgba(99,102,241,0.38) 0%, rgba(120,130,255,0.20) 20%, rgba(110,120,255,0.07) 50%, transparent 85%);
 	}
 	.glow2 {
 		width: 1100px; height: 800px;
 		top: 50%; left: 50%;
-		background: radial-gradient(ellipse, rgba(130,140,255,0.63) 0%, rgba(99,102,241,0.25) 25%, rgba(110,115,255,0.07) 55%, transparent 80%);
+		background: radial-gradient(ellipse, rgba(130,140,255,0.42) 0%, rgba(99,102,241,0.18) 25%, rgba(110,115,255,0.05) 55%, transparent 80%);
 	}
 </style>
