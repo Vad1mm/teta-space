@@ -64,14 +64,13 @@
 		const oldLen = chars.length;
 		const maxLen = Math.max(oldLen, toText.length);
 
-		// Add ghost chars if target is longer — start blurred for smooth fade-in
+		// Add ghost chars if target is longer — start invisible for smooth fade-in
 		while (chars.length < maxLen) {
 			const s = document.createElement('span');
-			s.className = 'anim-char';
+			s.className = 'anim-char blurred';
 			(s as any)._target = '';
 			s.textContent = rndCh();
 			s.style.opacity = '0';
-			s.style.filter = 'blur(4px)';
 			brandEl.appendChild(s);
 			chars.push(s);
 		}
@@ -116,6 +115,7 @@
 				(chars[i] as any)._locked = false;
 				(chars[i] as any)._fadeOut = true;
 				chars[i].style.textShadow = '';
+				chars[i].classList.add('blurred');
 				continue;
 			}
 			(chars[i] as any)._locked = false;
@@ -123,7 +123,7 @@
 			(chars[i] as any)._fadeIn = i >= oldLen; // new chars fade in
 			chars[i].style.color = 'rgba(255,255,255,0.45)';
 			chars[i].style.textShadow = '';
-			chars[i].style.filter = 'blur(3px)';
+			chars[i].classList.add('blurred');
 			chars[i].style.width = '28px';
 			chars[i].style.margin = '0 2px';
 		}
@@ -136,39 +136,34 @@
 			for (let i = startIdx; i < chars.length; i++) {
 				if ((chars[i] as any)._locked) continue;
 
-				// Dissolving ghost (shrinking)
+				// Dissolving ghost (shrinking) — CSS class blur (static), opacity animated
 				if ((chars[i] as any)._fadeOut) {
 					if (elapsed >= GHOST_FADE) {
 						(chars[i] as any)._locked = true;
 						chars[i].style.opacity = '0';
-						chars[i].style.filter = 'blur(8px)';
 						continue;
 					}
 					const t = elapsed / GHOST_FADE;
 					chars[i].textContent = rndCh();
 					chars[i].style.opacity = (0.4 * Math.pow(1 - t, 1.5)).toFixed(2);
-					chars[i].style.filter = `blur(${t * 6}px)`;
 					continue;
 				}
 
-				// Appearing ghost (growing)
+				// Appearing ghost (growing) — CSS class blur (static), opacity animated
 				if ((chars[i] as any)._fadeIn) {
 					const t = Math.min(1, elapsed / GHOST_FADE);
 					const ease = t * (2 - t); // easeOut
 					chars[i].textContent = rndCh();
 					chars[i].style.opacity = (ease * (0.12 + Math.random() * 0.48)).toFixed(2);
-					chars[i].style.filter = `blur(${(1 - ease) * 4}px)`;
 					if (t >= 1) {
 						(chars[i] as any)._fadeIn = false;
-						chars[i].style.filter = '';
 					}
 					continue;
 				}
 
-				// Normal spin
+				// Normal spin — static CSS blur class, only opacity changes per tick
 				chars[i].textContent = rndCh();
 				chars[i].style.opacity = (0.12 + Math.random() * 0.48).toFixed(2);
-				chars[i].style.filter = 'blur(3px)';
 			}
 			if (++tick % 3 === 0) hapticSelection();
 		}, 55);
@@ -179,8 +174,8 @@
 					c.textContent = targetCh;
 					(c as any)._target = targetCh;
 					(c as any)._locked = true;
+					c.classList.remove('blurred');
 					c.style.opacity = '1';
-					c.style.filter = '';
 					c.style.color = 'rgba(255,255,255,1)';
 					c.style.textShadow = '0 0 14px rgba(99,102,241,0.55)';
 					// Set correct dimensions for space / dot / normal char
@@ -244,7 +239,7 @@
 			(chars[i] as any)._locked = false;
 			chars[i].style.color = 'rgba(255,255,255,0.45)';
 			chars[i].style.textShadow = '';
-			chars[i].style.filter = 'blur(3px)';
+			chars[i].classList.add('blurred');
 		}
 
 		let tick = 0;
@@ -253,7 +248,6 @@
 				if (!(chars[i] as any)._locked) {
 					chars[i].textContent = rndCh();
 					chars[i].style.opacity = (0.12 + Math.random() * 0.48).toFixed(2);
-					chars[i].style.filter = 'blur(3px)';
 				}
 			}
 			if (++tick % 3 === 0) hapticSelection();
@@ -268,8 +262,8 @@
 				chars[i].textContent = targetCh;
 				(chars[i] as any)._target = targetCh;
 				(chars[i] as any)._locked = true;
+				chars[i].classList.remove('blurred');
 				chars[i].style.opacity = '1';
-				chars[i].style.filter = '';
 				chars[i].style.color = 'rgba(255,255,255,1)';
 				chars[i].style.textShadow = '0 0 14px rgba(99,102,241,0.55)';
 				hapticSelection();
@@ -344,5 +338,10 @@
 		display: block; width: 28px; text-align: center;
 		margin: 0 2px; flex-shrink: 0;
 		transition: opacity 0.4s ease, color 0.4s ease, text-shadow 0.8s ease, filter 0.3s ease-out;
+	}
+	/* PERF: Static blur via class toggle — never animate filter value dynamically.
+	   Class add/remove triggers a single filter change, not per-tick recalculation. */
+	.brand-name :global(.anim-char.blurred) {
+		filter: blur(3px);
 	}
 </style>

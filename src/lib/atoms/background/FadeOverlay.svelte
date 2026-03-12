@@ -14,5 +14,6 @@
 		background: #06060b;
 		z-index: 100;
 		pointer-events: none;
+		will-change: opacity;
 	}
 </style>

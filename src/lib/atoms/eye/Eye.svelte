@@ -15,7 +15,6 @@
 		breathEdgeOpacity = 0,
 		breathEdgeTopOpacity,
 		breathEdgeBotOpacity,
-		breathEdgeFilter = 'drop-shadow(0 0 8px rgba(255,255,255,0.35))',
 		breathEdgeTopDasharray = '',
 		breathEdgeTopDashoffset = '',
 		breathEdgeBotDasharray = '',
@@ -31,7 +30,6 @@
 		breathEdgeOpacity?: number;
 		breathEdgeTopOpacity?: number;
 		breathEdgeBotOpacity?: number;
-		breathEdgeFilter?: string;
 		breathEdgeTopDasharray?: string;
 		breathEdgeTopDashoffset?: string;
 		breathEdgeBotDasharray?: string;
@@ -77,6 +75,11 @@
 				<stop offset="80%" stop-color="rgba(150,155,255,0.55)" />
 				<stop offset="100%" stop-color="rgba(255,255,255,0.03)" />
 			</linearGradient>
+			<!-- PERF: Static SVG glow filter — defined once, GPU-cached.
+				 Replaces dynamic drop-shadow which recomputed on every path change. -->
+			<filter id="breathGlow" x="-20%" y="-20%" width="140%" height="140%">
+				<feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+			</filter>
 			<clipPath id="eyeClip"><path d={d} /></clipPath>
 			<clipPath id="irisClip">
 				<ellipse cx={irisCx} cy={irisCy} rx={irisRx} ry={irisRy} />
@@ -98,18 +101,31 @@
 		<path {d} fill="none" stroke="rgba(255,255,255,{contourOpacity})"
 			stroke-width="2" stroke-linejoin="round" />
 
-		<!-- Breath edges -->
+		<!-- Breath edges — glow layer (blurred, static filter) + sharp edge on top.
+			 PERF: SVG filter is defined once in <defs>, not recalculated per frame. -->
 		{#if showBreathEdge}
+			<!-- Glow behind (blurred, lower opacity) -->
+			<path d={topD} fill="none" stroke="rgba(255,255,255,0.35)"
+				stroke-width="6" stroke-linecap="round"
+				filter="url(#breathGlow)"
+				opacity={breathEdgeTopOpacity !== undefined ? breathEdgeTopOpacity : breathEdgeOpacity}
+				style:stroke-dasharray={breathEdgeTopDasharray}
+				style:stroke-dashoffset={breathEdgeTopDashoffset} />
+			<path d={botD} fill="none" stroke="rgba(255,255,255,0.35)"
+				stroke-width="6" stroke-linecap="round"
+				filter="url(#breathGlow)"
+				opacity={breathEdgeBotOpacity !== undefined ? breathEdgeBotOpacity : breathEdgeOpacity}
+				style:stroke-dasharray={breathEdgeBotDasharray}
+				style:stroke-dashoffset={breathEdgeBotDashoffset} />
+			<!-- Sharp edge on top -->
 			<path bind:this={topPathEl} d={topD} fill="none" stroke="rgba(255,255,255,0.9)"
 				stroke-width="2.8" stroke-linecap="round"
 				opacity={breathEdgeTopOpacity !== undefined ? breathEdgeTopOpacity : breathEdgeOpacity}
-				style:filter={breathEdgeFilter}
 				style:stroke-dasharray={breathEdgeTopDasharray}
 				style:stroke-dashoffset={breathEdgeTopDashoffset} />
 			<path bind:this={botPathEl} d={botD} fill="none" stroke="rgba(255,255,255,0.9)"
 				stroke-width="2.8" stroke-linecap="round"
 				opacity={breathEdgeBotOpacity !== undefined ? breathEdgeBotOpacity : breathEdgeOpacity}
-				style:filter={breathEdgeFilter}
 				style:stroke-dasharray={breathEdgeBotDasharray}
 				style:stroke-dashoffset={breathEdgeBotDashoffset} />
 		{/if}

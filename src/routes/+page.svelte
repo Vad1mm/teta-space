@@ -343,7 +343,7 @@
 				bottomGroupVisible = false;
 				sloganText = '';
 				blinkEng.blink.breathPhase = null;
-				blinkEng.forceClose(2800); // eye closes over ~40% of FAREWELL_DUR
+				blinkEng.forceClose(400);
 				phase = 'farewell';
 				farewellT = 0;
 			}, 1200);
@@ -384,7 +384,7 @@
 				bottomGroupVisible = false;
 				labelText = '';
 				blinkEng.blink.breathPhase = null;
-				blinkEng.forceClose(2800);
+				blinkEng.forceClose(400);
 				phase = 'farewell';
 				farewellT = 0;
 			}, 2500);
@@ -571,7 +571,7 @@
 			attPoints.setDim(glowDim);
 			attPoints.setBoost(glowBoost);
 			attPoints.update(dt, now, br, beatVal);
-			renderedPoints = attPoints.getPoints().map(p => ({ ...p }));
+			renderedPoints = attPoints.getPoints() as AttentionPointState[];
 		}
 
 		if (phase === 'opening') {
@@ -900,8 +900,9 @@
 			attPoints.setDim(glowDim);
 			attPoints.setBoost(glowBoost);
 			attPoints.update(dt, now, br, beatVal);
+			// PERF: Reference points directly — avoid .map() spread creating new objects every frame
 			const pts = attPoints.getPoints();
-			renderedPoints = pts.map(p => ({ ...p }));
+			renderedPoints = pts as AttentionPointState[];
 			const bgPt = pts.find(p => p.config.id.endsWith('-glow'));
 			attGlowX = bgPt ? bgPt.x : 0;
 			attGlowY = bgPt ? bgPt.y : 0;
@@ -945,7 +946,12 @@
 			irisCx = CX; irisCy = CY; irisRx = 44; irisRy = 44;
 		}
 
-		eyeState = { ...B };
+		// PERF: Mutate eyeState fields instead of spreading new object every frame.
+		// Spreading creates GC pressure (new object 60x/sec = micro-freezes).
+		eyeState.topL = B.topL; eyeState.topR = B.topR;
+		eyeState.botL = B.botL; eyeState.botR = B.botR;
+		eyeState.iRy = B.iRy; eyeState.iRx = B.iRx;
+		eyeState.iCy = B.iCy; eyeState.iOp = B.iOp;
 		eyeOpenness = clamp((B.iRy - 0.2) / (IRIS_RY - 0.2), 0, 1);
 
 		if (phase !== 'dark') {
@@ -1142,6 +1148,7 @@
 	}
 	.focus-dot {
 		position: absolute;
+		top: 0; left: 0;
 		width: 32px; height: 32px;
 		border-radius: 50%;
 		background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, rgba(99,102,241,0.10) 30%, rgba(99,102,241,0.03) 55%, transparent 75%);

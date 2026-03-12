@@ -19,11 +19,6 @@
 	let bv = $derived(beatVal || 0);
 	let op = $derived(clamp(openness, 0, 1));
 
-	// Three contexts:
-	// 1. Heart (bv > 0): ONLY heartbeat pulse, no breath
-	// 2. Blink (op < 1): dims with eye blinks
-	// 3. Breath (default): breathes smoothly
-
 	let fillOpacity = $derived(
 		bv > 0
 			? (0.7 + bv * 0.3)
@@ -31,12 +26,14 @@
 				? (0.15 + breath * 0.35) * (0.3 + op * 0.7)
 				: (0.3 + breath * 0.6)
 	);
-	let height = $derived(
+	// PERF: Use scaleY instead of height animation — compositor-only, no layout thrash.
+	// Base height is 2px, scale range gives us 1.5-3px visual thickness.
+	let scaleY = $derived(
 		bv > 0
-			? (2 + bv * 1)
+			? (1 + bv * 0.5)
 			: op < 0.99
-				? (1.5 + breath * 1.5) * (0.4 + op * 0.6)
-				: (1.5 + breath * 1.5)
+				? (0.75 + breath * 0.75) * (0.4 + op * 0.6)
+				: (0.75 + breath * 0.75)
 	);
 	let glowOp = $derived(
 		bv > 0
@@ -45,20 +42,16 @@
 				? (0.1 + breath * 0.2) * op
 				: (0.15 + breath * 0.25)
 	);
-	let glowSz = $derived(
-		bv > 0
-			? (4 + bv * 12)
-			: op < 0.99
-				? (4 + breath * 6) * op
-				: (6 + breath * 10)
-	);
 </script>
 
-<div class="progress-bar" style:opacity={visible ? 1 : 0} style:height="{height}px">
+<div class="progress-bar" style:opacity={visible ? 1 : 0}>
 	<div class="progress-fill"
-		style:transform="scaleX({remaining})"
-		style:opacity={fillOpacity}
-		style:box-shadow="0 0 {glowSz}px rgba(99,102,241,{glowOp.toFixed(2)})">
+		style:transform="scaleX({remaining}) scaleY({scaleY})"
+		style:opacity={fillOpacity}>
+	</div>
+	<div class="progress-glow"
+		style:transform="scaleX({remaining}) scaleY({scaleY})"
+		style:opacity={glowOp}>
 	</div>
 </div>
 
@@ -77,5 +70,15 @@
 		background: rgba(99,102,241,0.5);
 		transform-origin: center;
 		border-radius: 1px;
+		will-change: transform, opacity;
+	}
+	/* PERF: Static box-shadow on separate element, animated via opacity only.
+	   box-shadow never changes value — GPU caches the shadow layer. */
+	.progress-glow {
+		position: absolute; inset: 0;
+		transform-origin: center;
+		border-radius: 1px;
+		box-shadow: 0 0 12px rgba(99,102,241,0.6);
+		will-change: transform, opacity;
 	}
 </style>
