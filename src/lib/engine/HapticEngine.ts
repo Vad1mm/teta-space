@@ -1,6 +1,13 @@
+let _haptic: any = undefined; // undefined = not checked, null = not supported
+
 function getTgHaptic() {
+	if (_haptic !== undefined) return _haptic;
 	const tg = typeof window !== 'undefined' ? (window as any).Telegram?.WebApp : null;
-	return tg?.HapticFeedback ?? null;
+	if (!tg?.HapticFeedback) { _haptic = null; return null; }
+	// Check if version supports haptics (6.1+)
+	const ver = parseFloat(tg.version || '0');
+	_haptic = ver >= 6.1 ? tg.HapticFeedback : null;
+	return _haptic;
 }
 
 const hasVibrate = typeof navigator !== 'undefined' && 'vibrate' in navigator;

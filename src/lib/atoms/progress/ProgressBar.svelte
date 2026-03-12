@@ -5,36 +5,52 @@
 		progress = 1,
 		breath = 0,
 		beatVal = 0,
+		openness = 1,
 		visible = false,
 	}: {
 		progress?: number;
 		breath?: number;
 		beatVal?: number;
+		openness?: number;
 		visible?: boolean;
 	} = $props();
 
 	let remaining = $derived(clamp(1 - progress, 0, 1));
 	let bv = $derived(beatVal || 0);
+	let op = $derived(clamp(openness, 0, 1));
+
+	// Three contexts:
+	// 1. Heart (bv > 0): ONLY heartbeat pulse, no breath
+	// 2. Blink (op < 1): dims with eye blinks
+	// 3. Breath (default): breathes smoothly
 
 	let fillOpacity = $derived(
 		bv > 0
-			? (0.3 + breath * 0.4 + bv * 0.3)
-			: (0.3 + breath * 0.6)
+			? (0.7 + bv * 0.3)
+			: op < 0.99
+				? (0.15 + breath * 0.35) * (0.3 + op * 0.7)
+				: (0.3 + breath * 0.6)
 	);
 	let height = $derived(
 		bv > 0
-			? (1.5 + breath * 1 + bv * 1.5)
-			: (1.5 + breath * 1.5)
+			? (2 + bv * 1)
+			: op < 0.99
+				? (1.5 + breath * 1.5) * (0.4 + op * 0.6)
+				: (1.5 + breath * 1.5)
 	);
 	let glowOp = $derived(
 		bv > 0
-			? (0.15 + breath * 0.15 + bv * 0.25)
-			: (0.15 + breath * 0.25)
+			? (0.2 + bv * 0.4)
+			: op < 0.99
+				? (0.1 + breath * 0.2) * op
+				: (0.15 + breath * 0.25)
 	);
 	let glowSz = $derived(
 		bv > 0
-			? (6 + breath * 6 + bv * 12)
-			: (6 + breath * 10)
+			? (4 + bv * 12)
+			: op < 0.99
+				? (4 + breath * 6) * op
+				: (6 + breath * 10)
 	);
 </script>
 

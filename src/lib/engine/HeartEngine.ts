@@ -28,19 +28,20 @@ export interface HeartState {
 	jS2: number;
 	jS1Dur: number;
 	jS2Dur: number;
+	externalHR: number | null;
 }
 
 export function createHeartEngine() {
 	const state: HeartState = {
 		heartT: 0, cycleLen: 60000 / HR_START,
 		s1Fired: false, s2Fired: false, beatVal: 0,
-		sessionStart: null, hapticEnabled: false, hapticOnly: false,
+		sessionStart: null, hapticEnabled: false, hapticOnly: false, externalHR: null,
 		jGap: S1_S2_GAP, jS1: 1.0, jS2: 0.62,
 		jS1Dur: S1_DUR, jS2Dur: S2_DUR,
 	};
 
 	function newBeat(hr: number): void {
-		state.cycleLen = 60000 / clamp(hr, 40, 65) + jit(15);
+		state.cycleLen = 60000 / clamp(hr, 5, 100) + jit(15);
 		state.jGap = S1_S2_GAP + jit(12);
 		state.jS1 = 1.0 + jit(0.03);
 		state.jS2 = 0.62 + jit(0.06);
@@ -80,7 +81,8 @@ export function createHeartEngine() {
 	}
 
 	function update(dt: number, breath: number, now: number): void {
-		const hr = getSessionHR(now) + (breath * 2 - 1) * HR_AMP;
+		const baseHR = state.externalHR ?? getSessionHR(now);
+		const hr = baseHR + (breath * 2 - 1) * HR_AMP;
 		state.heartT += dt;
 		if (state.heartT >= state.cycleLen) {
 			state.heartT -= state.cycleLen;
@@ -102,7 +104,7 @@ export function createHeartEngine() {
 	function reset(): void {
 		state.heartT = 0; state.cycleLen = 60000 / HR_START;
 		state.s1Fired = false; state.s2Fired = false; state.beatVal = 0;
-		state.sessionStart = null; state.hapticEnabled = false; state.hapticOnly = false;
+		state.sessionStart = null; state.hapticEnabled = false; state.hapticOnly = false; state.externalHR = null;
 		newBeat(HR_START);
 	}
 

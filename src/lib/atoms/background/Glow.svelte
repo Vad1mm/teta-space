@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { glowValues } from './glowMath';
 
-	let { breath = 0, beatVal = 0 }: { breath?: number; beatVal?: number } = $props();
+	let { breath = 0, beatVal = 0, boost = 1 }: { breath?: number; beatVal?: number; boost?: number } = $props();
 
 	let g = $derived(glowValues(breath, beatVal));
 </script>
 
 <div class="glow glow1"
-	style:opacity={g.g1op}
+	style:opacity={g.g1op * boost}
 	style:transform="translate(-50%,-50%) scale({g.g1scale})">
 </div>
 <div class="glow glow2"
-	style:opacity={g.g2op}
+	style:opacity={g.g2op * boost}
 	style:transform="translate(-50%,-50%) scale({g.g2scale})">
 </div>
 
@@ -21,15 +21,16 @@
 		border-radius: 50%;
 		pointer-events: none;
 		z-index: 0;
+		will-change: transform, opacity;
 	}
 	.glow1 {
-		width: 1000px; height: 700px;
+		width: 1800px; height: 1200px;
 		top: 50%; left: 50%;
-		background: radial-gradient(ellipse, rgba(99,102,241,0.16) 0%, rgba(120,130,255,0.06) 30%, transparent 65%);
+		background: radial-gradient(ellipse, rgba(99,102,241,0.60) 0%, rgba(120,130,255,0.28) 20%, rgba(110,120,255,0.09) 50%, transparent 85%);
 	}
 	.glow2 {
-		width: 600px; height: 420px;
+		width: 1100px; height: 800px;
 		top: 50%; left: 50%;
-		background: radial-gradient(ellipse, rgba(130,140,255,0.20) 0%, rgba(99,102,241,0.05) 40%, transparent 60%);
+		background: radial-gradient(ellipse, rgba(130,140,255,0.63) 0%, rgba(99,102,241,0.25) 25%, rgba(110,115,255,0.07) 55%, transparent 80%);
 	}
 </style>

@@ -10,6 +10,7 @@
 		irisCy = CY,
 		irisRx = 44,
 		irisRy = 44,
+		showCrease = true,
 		showBreathEdge = false,
 		breathEdgeOpacity = 0,
 		breathEdgeTopOpacity,
@@ -25,6 +26,7 @@
 		eyeState: EyeState;
 		irisCx?: number; irisCy?: number;
 		irisRx?: number; irisRy?: number;
+		showCrease?: boolean;
 		showBreathEdge?: boolean;
 		breathEdgeOpacity?: number;
 		breathEdgeTopOpacity?: number;
@@ -46,6 +48,14 @@
 			top: topPathEl?.getTotalLength() ?? 260,
 			bot: botPathEl?.getTotalLength() ?? 260,
 		};
+	}
+
+	export function getPointOnPath(which: 'top' | 'bot', t: number): { x: number; y: number } {
+		const el = which === 'top' ? topPathEl : botPathEl;
+		if (!el) return { x: CX, y: CY };
+		const len = el.getTotalLength();
+		const pt = el.getPointAtLength(clamp(t, 0, 1) * len);
+		return { x: pt.x, y: pt.y };
 	}
 
 	let d = $derived(eyeD(eyeState.topL, eyeState.topR, eyeState.botL, eyeState.botR));
@@ -79,8 +89,10 @@
 		</defs>
 
 		<!-- Crease -->
+		{#if showCrease}
 		<path d={crease} fill="none" stroke="rgba(255,255,255,0.12)"
 			stroke-width="1" stroke-linecap="round" opacity={creaseOp} />
+		{/if}
 
 		<!-- Eye outline -->
 		<path {d} fill="none" stroke="rgba(255,255,255,{contourOpacity})"
@@ -102,7 +114,8 @@
 				style:stroke-dashoffset={breathEdgeBotDashoffset} />
 		{/if}
 
-		<!-- Interior (clipped to eye) -->
+		<!-- Interior (clipped to eye) — skip entirely when eye nearly shut to avoid expensive clipPath recalc -->
+		{#if interiorOp > 0.02}
 		<g clip-path="url(#eyeClip)" opacity={interiorOp}>
 			<!-- Pupil glow -->
 			<ellipse cx={irisCx} cy={irisCy} rx={irisRx} ry={irisRy} fill="url(#pupilGlow)" />
@@ -114,6 +127,7 @@
 				{@render children()}
 			{/if}
 		</g>
+		{/if}
 	</svg>
 </div>
 

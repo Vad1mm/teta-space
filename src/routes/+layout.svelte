@@ -5,6 +5,7 @@
 	onMount(() => {
 		const tg = (window as any).Telegram?.WebApp;
 		if (tg) { tg.ready(); tg.expand(); }
+
 	});
 </script>
 
